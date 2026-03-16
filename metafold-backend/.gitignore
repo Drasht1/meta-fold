@@ -1,0 +1,5 @@
+.env
+uploads
+processed
+checkpoints
+temp_processing
