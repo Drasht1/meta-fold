@@ -5,8 +5,8 @@ from tqdm import tqdm
 import time
 import warnings
 import re
-from difflib import get_close_matches
-from typing import Callable, Optional
+from difflib import get_close_matches, SequenceMatcher
+from typing import Callable, Optional, List, Tuple
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -14,6 +14,8 @@ warnings.filterwarnings('ignore')
 # Configuration
 PUBCHEM_DELAY = 0.2  # seconds between PubChem requests
 MAX_SYNONYMS_TO_TRY = 5  # limit number of synonyms to try
+FUZZY_MATCH_THRESHOLD = 0.75  # 75% similarity threshold for fuzzy matching
+USE_FUZZY_MATCHING = True  # Toggle fuzzy matching on/off
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -23,6 +25,73 @@ headers = {
 def normalize(s):
     """Normalize string by removing non-alphanumeric characters and lowercasing."""
     return re.sub(r'[^a-z0-9]', '', s.lower())
+
+def calculate_similarity(s1: str, s2: str) -> float:
+    """Calculate similarity ratio between two strings (0.0 to 1.0)."""
+    return SequenceMatcher(None, normalize(s1), normalize(s2)).ratio()
+
+def fuzzy_match_compounds(compound_name: str, compounds: List[Compound], threshold: float = FUZZY_MATCH_THRESHOLD) -> Optional[Compound]:
+    """
+    Rank compounds by similarity to the input name and return the best match.
+    
+    Args:
+        compound_name: The input compound name
+        compounds: List of Compound objects from PubChem
+        threshold: Minimum similarity threshold (0.0-1.0)
+    
+    Returns:
+        Best matching Compound object if above threshold, else None
+    """
+    if not compounds:
+        return None
+    
+    if len(compounds) == 1:
+        return compounds[0]
+    
+    # Score each compound based on its name similarity
+    scored_compounds = []
+    for compound in compounds:
+        # Check similarity against multiple names
+        similarities = []
+        if hasattr(compound, 'iupac_name') and compound.iupac_name:
+            similarities.append(calculate_similarity(compound_name, compound.iupac_name))
+        if hasattr(compound, 'synonyms') and compound.synonyms:
+            # Compare against first few synonyms
+            for syn in compound.synonyms[:3]:
+                similarities.append(calculate_similarity(compound_name, syn))
+        
+        # Use max similarity score
+        max_similarity = max(similarities) if similarities else 0.0
+        scored_compounds.append((compound, max_similarity))
+    
+    # Sort by similarity (descending)
+    scored_compounds.sort(key=lambda x: x[1], reverse=True)
+    best_compound, best_score = scored_compounds[0]
+    
+    # Return compound if above threshold, otherwise None
+    if best_score >= threshold:
+        return best_compound
+    
+    return None
+
+def fuzzy_filter_synonyms(compound_name: str, synonyms: List[str], threshold: float = FUZZY_MATCH_THRESHOLD) -> List[str]:
+    """
+    Filter synonyms by similarity to the compound name using fuzzy matching.
+    
+    Args:
+        compound_name: The input compound name
+        synonyms: List of synonym candidates
+        threshold: Minimum similarity threshold
+    
+    Returns:
+        List of synonyms sorted by similarity (highest first)
+    """
+    if not synonyms:
+        return []
+    
+    # Use difflib to find close matches
+    matches = get_close_matches(compound_name, synonyms, n=len(synonyms), cutoff=threshold)
+    return matches
 
 # === Cleaning Function ===
 def clean_name(name):
@@ -85,7 +154,11 @@ def try_with_nih_cactus(compound_name):
         url = f"https://cactus.nci.nih.gov/chemical/structure/{compound_name}/names"
         response = requests.get(url, headers=headers, timeout=10)
         if response.ok:
-            return [name.strip() for name in response.text.split('\n') if name.strip()]
+            synonyms = [name.strip() for name in response.text.split('\n') if name.strip()]
+            # Apply fuzzy filtering if enabled
+            if USE_FUZZY_MATCHING and synonyms:
+                synonyms = fuzzy_filter_synonyms(compound_name, synonyms, FUZZY_MATCH_THRESHOLD)
+            return synonyms
     except Exception as e:
         print(f"Error in NIH Cactus for {compound_name}: {str(e)}")
     return []
@@ -175,6 +248,12 @@ def get_alternative_synonyms(compound_name, compound_formula):
             # Try to find compounds with the same formula in PubChem
             compounds = get_compounds(compound_formula, 'formula')
             if compounds:
+                # Use fuzzy matching to select best compounds by formula
+                if USE_FUZZY_MATCHING and len(compounds) > 1:
+                    top_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
+                    if top_compound:
+                        compounds = [top_compound]
+                
                 return [c.iupac_name for c in compounds[:MAX_SYNONYMS_TO_TRY] if c.iupac_name]
         except Exception as e:
             print(f"Error getting formula synonyms for {compound_name}: {str(e)}")
@@ -206,7 +285,7 @@ def extract_compound_data(compound):
     }
 
 def fetch_compound_info(compound_name, compound_formula):
-    """Fetch compound information with synonym fallback."""
+    """Fetch compound information with synonym fallback and fuzzy matching."""
     # Get different variations of the compound name
     name_variations = get_name_variations(compound_name)
     
@@ -215,6 +294,13 @@ def fetch_compound_info(compound_name, compound_formula):
         try:
             compounds = get_compounds(variation, 'name')
             if compounds:
+                # Use fuzzy matching to select best match if multiple results
+                if USE_FUZZY_MATCHING and len(compounds) > 1:
+                    best_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
+                    if best_compound:
+                        return extract_compound_data(best_compound), variation
+                
+                # Fall back to first result if fuzzy match fails
                 return extract_compound_data(compounds[0]), variation
             time.sleep(PUBCHEM_DELAY)
         except Exception as e:
@@ -229,6 +315,12 @@ def fetch_compound_info(compound_name, compound_formula):
             time.sleep(PUBCHEM_DELAY)
             compounds = get_compounds(synonym, 'name')
             if compounds:
+                # Use fuzzy matching to rank results
+                if USE_FUZZY_MATCHING and len(compounds) > 1:
+                    best_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
+                    if best_compound:
+                        return extract_compound_data(best_compound), synonym
+                
                 return extract_compound_data(compounds[0]), synonym
         except Exception as e:
             print(f"Error processing synonym '{synonym}': {str(e)}")
@@ -297,6 +389,8 @@ if __name__ == "__main__":
     input_file = input("Enter the path to your input Excel file: ").strip('"')
     output_file = input("Enter the path for the output Excel file: ").strip('"')
 
-    print("\nStarting compound information fetching with synonym fallback...")
+    print("\nStarting compound information fetching with fuzzy matching...")
+    print(f"Fuzzy matching enabled: {USE_FUZZY_MATCHING}")
+    print(f"Similarity threshold: {FUZZY_MATCH_THRESHOLD * 100}%")
     process_excel_file(input_file, output_file)
     print("\nProcessing complete!")
