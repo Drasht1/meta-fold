@@ -1,4 +1,19 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks, Form, Request
+import os
+from collections import defaultdict, deque
+from time import time
+
+# async redis client (used if REDIS_URL is provided)
+try:
+    import redis.asyncio as aioredis
+except Exception:
+    aioredis = None
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import JSONResponse
+
+# existing imports
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, EmailStr
@@ -36,6 +51,76 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate limiting configuration
+RATE_LIMIT = int(os.getenv('RATE_LIMIT', '60'))        # requests
+RATE_PERIOD = int(os.getenv('RATE_PERIOD', '60'))      # seconds
+REDIS_URL = os.getenv('REDIS_URL', '')                 # if provided, use Redis for distributed limits
+
+# Redis client (async) will be set on startup if REDIS_URL is provided and redis.asyncio is available
+redis_client = None
+
+# In-memory fallback: per-IP deque of timestamps (single-process only)
+_requests_memory = defaultdict(lambda: deque())
+
+class IpRateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        global redis_client
+        # Determine client IP (handle X-Forwarded-For if present)
+        xff = request.headers.get('x-forwarded-for')
+        if xff:
+            ip = xff.split(',')[0].strip()
+        else:
+            ip = request.client.host if request.client else 'unknown'
+
+        # Try Redis-based limiter if client is configured
+        if REDIS_URL and aioredis:
+            try:
+                key = f"rl:{ip}"
+                # use INCR with expiry
+                cnt = await redis_client.incr(key)
+                if cnt == 1:
+                    await redis_client.expire(key, RATE_PERIOD)
+                if cnt > RATE_LIMIT:
+                    retry_after = await redis_client.ttl(key)
+                    return JSONResponse({"detail": "Too Many Requests"}, status_code=429, headers={"Retry-After": str(retry_after)})
+            except Exception:
+                # If Redis fails, fall back to in-memory limiter
+                pass
+
+        # In-memory sliding window limiter (single-process)
+        now = time()
+        dq = _requests_memory[ip]
+        # remove timestamps outside the window
+        while dq and dq[0] <= now - RATE_PERIOD:
+            dq.popleft()
+        if len(dq) >= RATE_LIMIT:
+            # compute retry-after from earliest timestamp
+            retry_after = int(RATE_PERIOD - (now - dq[0])) if dq else RATE_PERIOD
+            return JSONResponse({"detail": "Too Many Requests"}, status_code=429, headers={"Retry-After": str(retry_after)})
+        dq.append(now)
+
+        return await call_next(request)
+
+# Register the middleware
+app.add_middleware(IpRateLimitMiddleware)
+
+# Initialize Redis client on startup if requested
+@app.on_event("startup")
+async def _init_redis():
+    global redis_client
+    if REDIS_URL and aioredis:
+        try:
+            redis_client = aioredis.from_url(REDIS_URL, encoding="utf-8", decode_responses=True)
+            # test connection
+            await redis_client.ping()
+            logger.info("Rate limiter: connected to Redis")
+        except Exception as e:
+            logger.warning(f"Rate limiter: could not connect to Redis ({e}); falling back to in-memory limiter")
+    else:
+        if REDIS_URL and not aioredis:
+            logger.warning("Rate limiter: REDIS_URL set but redis.asyncio not available; using in-memory limiter")
+
 load_dotenv()
 # Email configuration (set these as environment variables in production)
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
