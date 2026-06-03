@@ -284,8 +284,22 @@ def extract_compound_data(compound):
         'Structure': f'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{compound.cid}/PNG'
     }
 
-def fetch_compound_info(compound_name, compound_formula):
-    """Fetch compound information with synonym fallback and fuzzy matching."""
+def fetch_compound_info(compound_name, compound_formula, cache=None):
+    """Fetch compound information with synonym fallback and fuzzy matching.
+    
+    Args:
+        compound_name: The input compound name
+        compound_formula: The input compound formula
+        cache: Optional dict to cache results per session (key: normalized name, value: (info, synonym_used))
+    """
+    if cache is None:
+        cache = {}
+    
+    # Check cache first (use normalized name as key)
+    cache_key = normalize(compound_name)
+    if cache_key in cache:
+        return cache[cache_key]
+    
     # Get different variations of the compound name
     name_variations = get_name_variations(compound_name)
     
@@ -298,10 +312,14 @@ def fetch_compound_info(compound_name, compound_formula):
                 if USE_FUZZY_MATCHING and len(compounds) > 1:
                     best_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
                     if best_compound:
-                        return extract_compound_data(best_compound), variation
+                        result = (extract_compound_data(best_compound), variation)
+                        cache[cache_key] = result  # cache the result
+                        return result
                 
                 # Fall back to first result if fuzzy match fails
-                return extract_compound_data(compounds[0]), variation
+                result = (extract_compound_data(compounds[0]), variation)
+                cache[cache_key] = result  # cache the result
+                return result
             time.sleep(PUBCHEM_DELAY)
         except Exception as e:
             print(f"Error processing variation '{variation}': {str(e)}")
@@ -319,9 +337,13 @@ def fetch_compound_info(compound_name, compound_formula):
                 if USE_FUZZY_MATCHING and len(compounds) > 1:
                     best_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
                     if best_compound:
-                        return extract_compound_data(best_compound), synonym
+                        result = (extract_compound_data(best_compound), synonym)
+                        cache[cache_key] = result  # cache the result
+                        return result
                 
-                return extract_compound_data(compounds[0]), synonym
+                result = (extract_compound_data(compounds[0]), synonym)
+                cache[cache_key] = result  # cache the result
+                return result
         except Exception as e:
             print(f"Error processing synonym '{synonym}': {str(e)}")
             continue
@@ -329,13 +351,19 @@ def fetch_compound_info(compound_name, compound_formula):
     # Try ChEMBL as a fallback
     chembl_data = try_with_chembl(compound_name)
     if chembl_data:
-        return chembl_data, compound_name
+        result = (chembl_data, compound_name)
+        cache[cache_key] = result  # cache the result
+        return result
 
     # Try NCI Resolver as a last resort - now returns both data and name
     nci_data, nci_name = try_with_nci_resolver(compound_name)
     if nci_data:
-        return nci_data, nci_name
+        result = (nci_data, nci_name)
+        cache[cache_key] = result  # cache the result
+        return result
 
+    # Cache negative result too
+    cache[cache_key] = (None, None)
     return None, None
 
 def process_excel_file(input_file, output_file, job_id=None, status_callback=None):
@@ -353,6 +381,9 @@ def process_excel_file(input_file, output_file, job_id=None, status_callback=Non
         if col not in df.columns:
             df[col] = None
 
+    # Per-session cache for compound lookups to avoid re-querying within the same job
+    compound_cache = {}
+
     # Process each compound name
     total_rows = len(df)
     for idx, row in tqdm(df.iterrows(), total=total_rows, desc="Processing compounds"):
@@ -363,8 +394,8 @@ def process_excel_file(input_file, output_file, job_id=None, status_callback=Non
         if pd.notna(row.get('PubChem CID')) or not compound_name:
             continue
 
-        # Fetch compound info
-        compound_info, synonym_used = fetch_compound_info(compound_name, compound_formula)
+        # Fetch compound info (pass cache for this session)
+        compound_info, synonym_used = fetch_compound_info(compound_name, compound_formula, cache=compound_cache)
 
         if compound_info:
             # Update the DataFrame with fetched info
@@ -383,14 +414,17 @@ def process_excel_file(input_file, output_file, job_id=None, status_callback=Non
 
     # Save the results to a new Excel file
     df.to_excel(output_file, index=False)
+    cache_size = len(compound_cache)
     print(f"\nResults saved to {output_file}")
+    print(f"Session cache: {cache_size} unique compounds cached")
 
 if __name__ == "__main__":
     input_file = input("Enter the path to your input Excel file: ").strip('"')
     output_file = input("Enter the path for the output Excel file: ").strip('"')
 
-    print("\nStarting compound information fetching with fuzzy matching...")
+    print("\nStarting compound information fetching with fuzzy matching and per-session caching...")
     print(f"Fuzzy matching enabled: {USE_FUZZY_MATCHING}")
     print(f"Similarity threshold: {FUZZY_MATCH_THRESHOLD * 100}%")
     process_excel_file(input_file, output_file)
     print("\nProcessing complete!")
+    print("Note: Per-session caching avoids re-querying duplicate compounds within the same job.")
