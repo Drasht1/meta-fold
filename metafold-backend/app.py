@@ -14,7 +14,6 @@ from pydantic import BaseModel, EmailStr
 import pandas as pd
 import uuid
 import os
-import time
 from typing import List, Dict, Any, Optional
 import shutil
 import uvicorn
@@ -91,11 +90,22 @@ PROCESSED_DIR = "processed"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-# MongoDB Atlas connection
-MONGO_URL = os.getenv("MONGODB_URL", "")
-client = MongoClient(MONGO_URL)
-db = client.website_stats
-visits_collection = db.visits
+# MongoDB Atlas connection (optional for local development)
+MONGO_URL = os.getenv("MONGODB_URL")
+
+visits_collection = None
+
+if MONGO_URL:
+    try:
+        client = MongoClient(MONGO_URL)
+        db = client.website_stats
+        visits_collection = db.visits
+        print("✓ MongoDB connected")
+    except Exception as e:
+        print(f"MongoDB connection failed: {e}")
+        visits_collection = None
+else:
+    print("⚠ No MongoDB URL found. Visit counter disabled.")
 
 class VisitResponse(BaseModel):
     count: int
@@ -171,11 +181,11 @@ async def upload_file(
         raise HTTPException(status_code=400, detail="Only Excel files are accepted")
     
     # Validate email configuration
-    if not EMAIL_USERNAME or not EMAIL_PASSWORD:
-        raise HTTPException(
-            status_code=500, 
-            detail="Email service not configured. Please contact administrator."
-        )
+    #if not EMAIL_USERNAME or not EMAIL_PASSWORD:
+     #   raise HTTPException(
+      #      status_code=500, 
+       #     detail="Email service not configured. Please contact administrator."
+        #)
     
     # Generate unique ID for the job
     job_id = str(uuid.uuid4())
@@ -198,25 +208,25 @@ async def upload_file(
     )
     
     # Send confirmation email
-    try:
-        confirmation_subject = "MetaFold Processing Started"
-        confirmation_body = f"""
-        <html>
-        <body>
-            <h2>MetaFold Processing Started</h2>
-            <p>Hello,</p>
-            <p>Your file <strong>{file.filename}</strong> has been uploaded successfully and processing has started.</p>
-            <p><strong>Job ID:</strong> {job_id}</p>
-            <p><strong>Uploaded at:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-            <p>You will receive another email when the processing is complete.</p>
-            <br>
-            <p>Best regards,<br>MetaFold Team</p>
-        </body>
-        </html>
-        """
-        background_tasks.add_task(send_email, email, confirmation_subject, confirmation_body)
-    except Exception as e:
-        logger.warning(f"Could not send confirmation email: {e}")
+    #try:
+     #   confirmation_subject = "MetaFold Processing Started"
+      #  confirmation_body = f"""
+       # <html>
+        #<body>
+         #   <h2>MetaFold Processing Started</h2>
+          #  <p>Hello,</p>
+           # <p>Your file <strong>{file.filename}</strong> has been uploaded successfully and processing has started.</p>
+            #<p><strong>Job ID:</strong> {job_id}</p>
+            #<p><strong>Uploaded at:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+            #<p>You will receive another email when the processing is complete.</p>
+            #<br>
+            #<p>Best regards,<br>MetaFold Team</p>
+        #</body>
+        #</html>
+        #"""
+        #background_tasks.add_task(send_email, email, confirmation_subject, confirmation_body)
+    #except Exception as e:
+        #logger.warning(f"Could not send confirmation email: {e}")
     
     # Process the file in the background
     background_tasks.add_task(process_file_task, job_id, input_path, output_path)
@@ -375,31 +385,46 @@ async def list_jobs():
 @app.get("/api/visits")
 async def get_visits():
     """Get current visit count"""
+
+    if visits_collection is None:
+        return VisitResponse(count=0)
+
     try:
         visit_doc = visits_collection.find_one({"_id": "visits"})
+
         if visit_doc:
             return VisitResponse(count=visit_doc["count"])
-        else:
-            return VisitResponse(count=157)
+
+        return VisitResponse(count=0)
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
 
 @app.post("/api/visits")
 async def increment_visits():
     """Increment visit count and return new count"""
+
+    if visits_collection is None:
+        return VisitResponse(count=0)
+
     try:
-        # Increment the visit count atomically
         result = visits_collection.find_one_and_update(
             {"_id": "visits"},
             {"$inc": {"count": 1}},
             upsert=True,
             return_document=True
         )
-        
+
         return VisitResponse(count=result["count"])
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
 
 
 @app.get("/api/download/{job_id}")

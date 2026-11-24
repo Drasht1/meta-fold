@@ -20,7 +20,7 @@ function MetaFoldLanding({ setCurrentPage }) {
 
 
   const [visits, setVisits] = useState(0);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
   useEffect(() => {
     const fetchAndIncrementVisits = async () => {
       try {
@@ -58,15 +58,15 @@ function MetaFoldLanding({ setCurrentPage }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 overflow-x-hidden" style={{
-      backgroundColor: '#0f1119',
-      color: '#f5f5f0',
+      backgroundColor: '#E4E9F2',
+      color: '#17233D',
       fontFamily: 'Inter, sans-serif'
     }}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-900 bg-opacity-90 backdrop-blur-sm' : 'bg-transparent'
         }`}>
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="text-2xl font-light text-blue-300">MetaFold</div>
+          <div className="text-2xl font-light text-blue-900">MetaFold</div>
           <div className="flex space-x-8">
             <button onClick={() => scrollToSection('features')} className="hover:text-blue-300 transition-colors">Features</button>
             <button onClick={() => scrollToSection('about')} className="hover:text-blue-300 transition-colors">About</button>
@@ -89,15 +89,15 @@ function MetaFoldLanding({ setCurrentPage }) {
               animationDelay: '0.5s',
               animationDuration: '15s'
             }} width="100" height="100" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="10" fill="#70bbe0" />
-              <circle cx="80" cy="30" r="7" fill="#70bbe0" />
-              <circle cx="20" cy="70" r="7" fill="#70bbe0" />
-              <circle cx="30" cy="20" r="7" fill="#70bbe0" />
-              <circle cx="70" cy="80" r="7" fill="#70bbe0" />
-              <line x1="50" y1="50" x2="80" y2="30" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="50" y1="50" x2="20" y2="70" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="50" y1="50" x2="30" y2="20" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="50" y1="50" x2="70" y2="80" stroke="#70bbe0" strokeWidth="2" />
+              <circle cx="50" cy="50" r="10" fill="#33518F" />
+              <circle cx="80" cy="30" r="7" fill="#33518F" />
+              <circle cx="20" cy="70" r="7" fill="#33518F" />
+              <circle cx="30" cy="20" r="7" fill="#33518F" />
+              <circle cx="70" cy="80" r="7" fill="#33518F" />
+              <line x1="50" y1="50" x2="80" y2="30" stroke="#33518F" strokeWidth="2" />
+              <line x1="50" y1="50" x2="20" y2="70" stroke="#33518F" strokeWidth="2" />
+              <line x1="50" y1="50" x2="30" y2="20" stroke="#33518F" strokeWidth="2" />
+              <line x1="50" y1="50" x2="70" y2="80" stroke="#33518F" strokeWidth="2" />
             </svg>
 
             {/* Molecule 2 */}
@@ -107,19 +107,19 @@ function MetaFoldLanding({ setCurrentPage }) {
               animationDelay: '1s',
               animationDuration: '18s'
             }} width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="12" fill="#70bbe0" />
-              <circle cx="30" cy="30" r="8" fill="#70bbe0" />
-              <circle cx="90" cy="30" r="8" fill="#70bbe0" />
-              <circle cx="90" cy="90" r="8" fill="#70bbe0" />
-              <circle cx="30" cy="90" r="8" fill="#70bbe0" />
-              <line x1="60" y1="60" x2="30" y2="30" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="60" y1="60" x2="90" y2="30" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="60" y1="60" x2="90" y2="90" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="60" y1="60" x2="30" y2="90" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="30" y1="30" x2="90" y2="30" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="90" y1="30" x2="90" y2="90" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="90" y1="90" x2="30" y2="90" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="30" y1="90" x2="30" y2="30" stroke="#70bbe0" strokeWidth="2" />
+              <circle cx="60" cy="60" r="12" fill="#33518F" />
+              <circle cx="30" cy="30" r="8" fill="#33518F" />
+              <circle cx="90" cy="30" r="8" fill="#33518F" />
+              <circle cx="90" cy="90" r="8" fill="#33518F" />
+              <circle cx="30" cy="90" r="8" fill="#33518F" />
+              <line x1="60" y1="60" x2="30" y2="30" stroke="#33518F" strokeWidth="2" />
+              <line x1="60" y1="60" x2="90" y2="30" stroke="#33518F" strokeWidth="2" />
+              <line x1="60" y1="60" x2="90" y2="90" stroke="#33518F" strokeWidth="2" />
+              <line x1="60" y1="60" x2="30" y2="90" stroke="#33518F" strokeWidth="2" />
+              <line x1="30" y1="30" x2="90" y2="30" stroke="#33518F" strokeWidth="2" />
+              <line x1="90" y1="30" x2="90" y2="90" stroke="#33518F" strokeWidth="2" />
+              <line x1="90" y1="90" x2="30" y2="90" stroke="#33518F" strokeWidth="2" />
+              <line x1="30" y1="90" x2="30" y2="30" stroke="#33518F" strokeWidth="2" />
             </svg>
 
             {/* Molecule 3 */}
@@ -129,14 +129,14 @@ function MetaFoldLanding({ setCurrentPage }) {
               animationDelay: '1.5s',
               animationDuration: '20s'
             }} width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="8" fill="#70bbe0" />
-              <circle cx="40" cy="10" r="6" fill="#70bbe0" />
-              <circle cx="65" cy="55" r="6" fill="#70bbe0" />
-              <circle cx="15" cy="55" r="6" fill="#70bbe0" />
-              <line x1="40" y1="40" x2="40" y2="10" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="40" y1="40" x2="65" y2="55" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="40" y1="40" x2="15" y2="55" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="65" y1="55" x2="15" y2="55" stroke="#70bbe0" strokeWidth="2" />
+              <circle cx="40" cy="40" r="8" fill="#33518F" />
+              <circle cx="40" cy="10" r="6" fill="#33518F" />
+              <circle cx="65" cy="55" r="6" fill="#33518F" />
+              <circle cx="15" cy="55" r="6" fill="#33518F" />
+              <line x1="40" y1="40" x2="40" y2="10" stroke="#33518F" strokeWidth="2" />
+              <line x1="40" y1="40" x2="65" y2="55" stroke="#33518F" strokeWidth="2" />
+              <line x1="40" y1="40" x2="15" y2="55" stroke="#33518F" strokeWidth="2" />
+              <line x1="65" y1="55" x2="15" y2="55" stroke="#33518F" strokeWidth="2" />
             </svg>
 
             {/* Molecule 4 */}
@@ -146,15 +146,15 @@ function MetaFoldLanding({ setCurrentPage }) {
               animationDelay: '2s',
               animationDuration: '16s'
             }} width="90" height="90" viewBox="0 0 90 90">
-              <circle cx="45" cy="45" r="9" fill="#70bbe0" />
-              <circle cx="45" cy="15" r="7" fill="#70bbe0" />
-              <circle cx="45" cy="75" r="7" fill="#70bbe0" />
-              <circle cx="15" cy="45" r="7" fill="#70bbe0" />
-              <circle cx="75" cy="45" r="7" fill="#70bbe0" />
-              <line x1="45" y1="45" x2="45" y2="15" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="45" y1="45" x2="45" y2="75" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="45" y1="45" x2="15" y2="45" stroke="#70bbe0" strokeWidth="2" />
-              <line x1="45" y1="45" x2="75" y2="45" stroke="#70bbe0" strokeWidth="2" />
+              <circle cx="45" cy="45" r="9" fill="#33518F" />
+              <circle cx="45" cy="15" r="7" fill="#33518F" />
+              <circle cx="45" cy="75" r="7" fill="#33518F" />
+              <circle cx="15" cy="45" r="7" fill="#33518F" />
+              <circle cx="75" cy="45" r="7" fill="#33518F" />
+              <line x1="45" y1="45" x2="45" y2="15" stroke="#33518F" strokeWidth="2" />
+              <line x1="45" y1="45" x2="45" y2="75" stroke="#33518F" strokeWidth="2" />
+              <line x1="45" y1="45" x2="15" y2="45" stroke="#33518F" strokeWidth="2" />
+              <line x1="45" y1="45" x2="75" y2="45" stroke="#33518F" strokeWidth="2" />
             </svg>
           </div>
         </div>
@@ -246,11 +246,11 @@ function MetaFoldLanding({ setCurrentPage }) {
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="metabolitePattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <circle cx="50" cy="50" r="20" fill="none" stroke="#70bbe0" strokeWidth="1" opacity="0.3" />
-                <circle cx="20" cy="20" r="8" fill="#70bbe0" opacity="0.2" />
-                <circle cx="80" cy="80" r="8" fill="#46769B" opacity="0.2" />
-                <line x1="20" y1="20" x2="50" y2="50" stroke="#70bbe0" strokeWidth="1" opacity="0.2" />
-                <line x1="50" y1="50" x2="80" y2="80" stroke="#46769B" strokeWidth="1" opacity="0.2" />
+                <circle cx="50" cy="50" r="20" fill="none" stroke="#33518F" strokeWidth="1" opacity="0.3" />
+                <circle cx="20" cy="20" r="8" fill="#33518F" opacity="0.2" />
+                <circle cx="80" cy="80" r="8" fill="#2B4478" opacity="0.2" />
+                <line x1="20" y1="20" x2="50" y2="50" stroke="#33518F" strokeWidth="1" opacity="0.2" />
+                <line x1="50" y1="50" x2="80" y2="80" stroke="#2B4478" strokeWidth="1" opacity="0.2" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#metabolitePattern)" />
@@ -270,8 +270,8 @@ function MetaFoldLanding({ setCurrentPage }) {
             About MetaFold
           </h2>
           <div className='flex items-center m-auto my-6 justify-center'>
-              <Eye className="w-8 h-8 text-white mr-2" />
-              <span className="text-xl text-white font-medium">
+              <Eye className="w-8 h-8 text-blue-900 mr-2" />
+              <span className="text-xl text-blue-900 font-medium">
                 {visits} visits
               </span>
             </div>
@@ -337,18 +337,20 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
     "Area (Max.)"
   ]);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const [activeTab, setActiveTab] = useState("compounds");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
   const [email, setEmail] = useState('');
-  // Enhanced color palette with gradients
+  
+  // Cobalt spectrum color palette (medium blue theme)
   const colors = {
-    primary: '#70bbe0',
-    secondary: '#46769B',
-    tertiary: '#2F5F8A',
-    light: '#1a2836',
-    dark: '#0f1119',
-    white: '#f5f5f0',
-    gray: '#6b7280',
-    accent: '#a855f7'
+    primary: '#33518F',
+    secondary: '#2B4478',
+    tertiary: '#223A66',
+    light: '#FFFFFF',
+    dark: '#E4E9F2',
+    white: '#17233D',
+    gray: '#5C6B82',
+    accent: '#C15C4A'
   };
 
   // Define all possible columns
@@ -363,8 +365,20 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
     "IUPAC Name",
     "Isomeric SMILES",
     "Description",
-    "Source"
+    "Source",
+    "Literature Links",
+    "Paper Count"
   ];
+
+  // What each tab shows by default: Compounds gets the analytical columns
+  // through Area (Max.); Literature gets just the name plus the paper data.
+  const COMPOUND_TAB_COLUMNS = ["Name", "Formula", "Calc. MW", "m/z", "RT [min]", "Area (Max.)"];
+  const LITERATURE_TAB_COLUMNS = ["Name", "Paper Count", "Literature Links"];
+
+  // Switch the visible columns whenever the active tab changes.
+  useEffect(() => {
+    setSelectedColumns(activeTab === "literature" ? LITERATURE_TAB_COLUMNS : COMPOUND_TAB_COLUMNS);
+  }, [activeTab]);
 
   const [visits, setVisits] = useState(0);
 
@@ -618,6 +632,59 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
     return cid ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG` : null;
   };
 
+  const renderLiteratureCell = (value) => {
+    if (!value) return '-';
+    const entries = String(value)
+      .split(';')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
+    if (entries.length === 0) return '-';
+
+    return (
+      <div className="space-y-2">
+        {entries.map((entry) => {
+          const separatorIndex = entry.indexOf(' | ');
+          let title = entry;
+          let href = entry;
+
+          if (separatorIndex >= 0) {
+            title = entry.slice(0, separatorIndex).trim();
+            href = entry.slice(separatorIndex + 3).trim();
+          } else if (/^https?:\/\//i.test(entry)) {
+            title = entry;
+            href = entry;
+          } else {
+            title = entry;
+            href = entry;
+          }
+
+          return (
+            <a
+              key={`${title}-${href}`}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-blue-400 hover:text-blue-300 underline break-all text-xs leading-relaxed"
+            >
+              {title}
+            </a>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderPreviewCell = (column, value) => {
+    if (column === 'Literature Links') {
+      return renderLiteratureCell(value);
+    }
+    if (column === 'Paper Count') {
+      return value || value === 0 ? value : '-';
+    }
+    return value || '-';
+  };
+
   // DEMO: Add sample data for testing
   const loadSampleData = () => {
     const sampleData = [
@@ -630,7 +697,9 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
         "Area (Max.)": "1234567",
         "PubChem CID": "5793",
         "IUPAC Name": "D-glucose",
-        "Description": "A simple sugar"
+        "Description": "A simple sugar",
+        "Literature Links": "Glucose article | https://pubmed.ncbi.nlm.nih.gov/12345678/;PubChem consolidated references | https://pubchem.ncbi.nlm.nih.gov/docs/literature",
+        "Paper Count": 2
       },
       {
         "Name": "Caffeine",
@@ -641,7 +710,9 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
         "Area (Max.)": "987654",
         "PubChem CID": "2519",
         "IUPAC Name": "1,3,7-trimethylpurine-2,6-dione",
-        "Description": "A central nervous system stimulant"
+        "Description": "A central nervous system stimulant",
+        "Literature Links": "Caffeine review | https://pubmed.ncbi.nlm.nih.gov/87654321/",
+        "Paper Count": 1
       },
       {
         "Name": "Aspirin",
@@ -652,7 +723,9 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
         "Area (Max.)": "567890",
         "PubChem CID": "2244",
         "IUPAC Name": "2-acetoxybenzoic acid",
-        "Description": "Nonsteroidal anti-inflammatory drug"
+        "Description": "Nonsteroidal anti-inflammatory drug",
+        "Literature Links": "https://doi.org/10.1016/j.bmcl.2020.127000;https://doi.org/10.1022/cmdc.201900123",
+        "Paper Count": 2
       }
     ];
     setPreviewData(sampleData);
@@ -682,11 +755,11 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 text-white shadow-lg border-b border-gray-700 backdrop-blur-sm" style={{ backgroundColor: `${colors.dark}dd` }}>
+      <header className="relative z-10 text-blue-900 shadow-lg border-b border-gray-700 backdrop-blur-sm" style={{ backgroundColor: `${colors.dark}dd` }}>
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <button
             onClick={() => setCurrentPage('landing')}
-            className="text-3xl font-light bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300"
+            className="text-3xl font-light text-blue-900 hover:scale-105 transition-transform duration-300"
           >
             MetaFold
           </button>
@@ -721,7 +794,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                     value={email}
                     onChange={handleEmailChange}
                     placeholder="Enter your email"
-                    className="w-full p-4 rounded-lg border-2 border-gray-600 bg-gray-800 bg-opacity-60 text-white backdrop-blur-sm hover:border-blue-400 transition-all duration-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-opacity-20"
+                    className="w-full p-4 rounded-lg border-2 border-gray-600 bg-gray-800 bg-opacity-60 text-blue-900 backdrop-blur-sm hover:border-blue-400 transition-all duration-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-opacity-20"
                     required
                   />
                   <div className="absolute right-3 top-3 text-blue-300 opacity-60">
@@ -735,7 +808,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                     type="file"
                     accept=".xlsx,.xls,.csv"
                     onChange={handleFileChange}
-                    className="w-full p-4 rounded-lg border-2 border-gray-600 bg-gray-800 bg-opacity-60 text-white backdrop-blur-sm hover:border-blue-400 transition-all duration-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-opacity-20"
+                    className="w-full p-4 rounded-lg border-2 border-gray-600 bg-gray-800 bg-opacity-60 text-blue-900 backdrop-blur-sm hover:border-blue-400 transition-all duration-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-opacity-20"
                   />
                   <div className="absolute right-3 top-3 text-blue-300 opacity-60">
                     📁
@@ -755,7 +828,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                   style={{
                     background: uploading
                       ? colors.gray
-                      : 'linear-gradient(135deg, #70bbe0 0%, #46769B 100%)',
+                      : 'linear-gradient(135deg, #33518F 0%, #2B4478 100%)',
                     boxShadow: uploading ? 'none' : '0 4px 20px rgba(112, 187, 224, 0.3)'
                   }}
                 >
@@ -806,7 +879,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                     className="p-4 rounded-lg border border-gray-600 bg-gray-800 bg-opacity-60 hover:bg-opacity-80 transition-all duration-300 cursor-pointer"
                     onClick={() => selectJob(job.id)}
                   >
-                    <div className="text-sm font-medium text-white">{job.filename}</div>
+                    <div className="text-sm font-medium text-blue-900">{job.filename}</div>
                     <div className="text-xs text-gray-400 flex items-center mt-1">
                       <span className={`inline-block w-2 h-2 rounded-full mr-2 ${job.status === 'completed' ? 'bg-green-400' : job.status === 'failed' ? 'bg-red-400' : 'bg-yellow-400'}`}></span>
                       Status: {job.status}
@@ -820,7 +893,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                           e.stopPropagation(); // Prevent job selection
                           handleResumeJob(job.id);
                         }}
-                        className="mt-2 px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-500 text-white rounded transition-colors"
+                        className="mt-2 px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-500 text-blue-900 rounded transition-colors"
                       >
                         Resume Job
                       </button>
@@ -864,6 +937,39 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
 
           {/* Right Column - Data Preview */}
           <div className="lg:col-span-9">
+           <div className="mb-5">
+  <div
+    className="flex rounded-xl p-2"
+    style={{
+      backgroundColor: `${colors.light}cc`,
+      border: "1px solid rgba(112, 187, 224, 0.2)"
+    }}
+  >
+
+    <button
+      onClick={() => setActiveTab("compounds")}
+      className={`flex-1 py-3 rounded-lg font-medium transition-all duration-300 ${
+        activeTab === "compounds"
+          ? "bg-blue-600 text-white shadow-lg"
+          : "text-gray-300 hover:bg-gray-800"
+      }`}
+    >
+      🧪 Compounds
+    </button>
+
+    <button
+      onClick={() => setActiveTab("literature")}
+      className={`flex-1 py-3 rounded-lg font-medium transition-all duration-300 ${
+        activeTab === "literature"
+          ? "bg-blue-600 text-white shadow-lg"
+          : "text-gray-300 hover:bg-gray-800"
+      }`}
+    >
+      📚 Literature
+    </button>
+
+  </div>
+</div>
             <div className="p-6 rounded-xl backdrop-blur-sm border transition-all duration-500"
               style={{
                 backgroundColor: `${colors.light}cc`,
@@ -895,8 +1001,8 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                             onClick={() => setExpandedRow(expandedRow === rowIndex ? null : rowIndex)}
                           >
                             {selectedColumns.map(column => (
-                              <td key={`${rowIndex}-${column}`} className="p-3">
-                                {row[column] || '-'}
+                              <td key={`${rowIndex}-${column}`} className="p-3 align-top">
+                                {renderPreviewCell(column, row[column])}
                               </td>
                             ))}
                             <td className="p-3 text-right">
@@ -917,7 +1023,7 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                                       {Object.entries(row).filter(([key]) => !selectedColumns.includes(key) && row[key]).map(([key, value]) => (
                                         <div key={key} className="p-2 bg-gray-800 bg-opacity-40 rounded">
                                           <div className="text-gray-400">{key}</div>
-                                          <div className="text-white">
+                                          <div className="text-blue-900">
                                             {key === 'PubChem CID' ? (
                                               <a
                                                 href={`https://pubchem.ncbi.nlm.nih.gov/compound/${value}`}
@@ -934,6 +1040,63 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
                                         </div>
                                       ))}
                                     </div>
+
+                                    {(row['Literature Links'] || row['Paper Count']) && (
+                                      <div className="mt-6 border-t border-gray-700 pt-4">
+
+                                        <h3 className="text-sm font-medium mb-3 bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+                                          Literature Mining
+                                        </h3>
+
+                                        <div className="mb-4">
+                                          <span className="text-gray-400 text-sm">
+                                            Total Publications:
+                                          </span>
+
+                                          <span className="ml-2 text-blue-900 font-semibold">
+                                            {row["Paper Count"] || 0}
+                                          </span>
+                                        </div>
+
+                                        <div className="space-y-3">
+
+                                          {String(row["Literature Links"] || "")
+                                            .split(";")
+                                            .filter(link => link.trim() !== "")
+                                            .map((entry, index) => {
+
+                                              const parts = entry.split(" | ");
+
+                                              const title = parts[0]?.trim();
+
+                                              const url = parts[1]?.trim();
+
+                                              return (
+
+                                                <div
+                                                  key={index}
+                                                  className="p-3 rounded bg-gray-800 bg-opacity-40 hover:bg-opacity-60 transition"
+                                                >
+
+                                                  <a
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-400 hover:text-blue-300 underline text-sm font-medium"
+                                                  >
+                                                    {title}
+                                                  </a>
+
+                                                </div>
+
+                                              );
+
+                                             })}
+
+                                          </div>
+
+                                         </div>
+                                      )}
                                   </div>
                                   <div>
                                     <h3 className="text-sm font-medium mb-2 bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
@@ -1071,8 +1234,8 @@ function ChemicalCompoundProcessor({ setCurrentPage }) {
               MetaFold © {new Date().getFullYear()} - Advancing Metabolomics Research
             </p>
             <div className='flex items-center ml-10'>
-              <Eye className="w-4 h-4 text-white mr-2" />
-              <span className="text-sm text-white font-medium">
+              <Eye className="w-4 h-4 text-blue-900 mr-2" />
+              <span className="text-sm text-blue-900 font-medium">
                 {visits} visits
               </span>
             </div>

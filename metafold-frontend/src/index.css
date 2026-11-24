@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+/*
+ * Cobalt spectrum palette.
+ * Overrides the specific Tailwind color/shade tokens this app already uses
+ * (bg-gray-900, text-blue-300, from-blue-300 to-purple-300, etc). Every
+ * className in the app keeps working unchanged -- only what each shade
+ * resolves to changes, here, in one place.
+ */
+@theme {
+  /* gray ramp: light theme surfaces + dark navy text */
+  --color-gray-950: #E4E9F2;  /* page canvas */
+  --color-gray-900: #FFFFFF;  /* panel / card background */
+  --color-gray-800: #EEF1F6;  /* secondary panel / hover surface */
+  --color-gray-700: #C9D3E2;  /* hairline border */
+  --color-gray-600: #AEBBD0;  /* emphasized border */
+  --color-gray-400: #5C6B82;  /* muted / secondary text */
+  --color-gray-300: #2A3B57;  /* body text */
+  --color-gray-100: #17233D;  /* heading / high-emphasis text */
+
+  /* blue ramp: cobalt, the primary accent. blue-900 is the fixed dark-navy
+     used for the MetaFold logo/wordmark, kept solid rather than gradient. */
+  --color-blue-300: #4A6FA5;
+  --color-blue-400: #33518F;
+  --color-blue-500: #2B4478;
+  --color-blue-600: #223A66;
+  --color-blue-900: #17233D;
+
+  /* purple ramp: secondary accent -> soft rust / coral */
+  --color-purple-300: #D98A73;
+  --color-purple-400: #C15C4A;
+  --color-purple-600: #A84936;
+  --color-purple-900: #5C2A20;
+
+  /* green ramp: semantic "success" family, re-tuned for the cobalt palette */
+  --color-green-300: #A8D4A0;
+  --color-green-400: #7CB874;
+  --color-green-600: #4A8A42;
+  --color-green-700: #3A6E34;
+  --color-green-900: #EAF5E8;
+
+  /* yellow ramp: warning / gold family */
+  --color-yellow-400: #E8C15A;
+  --color-yellow-500: #D4A430;
+  --color-yellow-600: #A87F1E;
+
+  /* red ramp: danger family */
+  --color-red-400: #D97A6E;
+  --color-red-600: #B8493A;
+  --color-red-900: #FBEAE6;
+
+  /* occasional flourish colors used in gradients/badges */
+  --color-pink-300: #D9A8BE;
+  --color-pink-400: #C97F9E;
+  --color-orange-400: #D9975A;
+  --color-cyan-300: #8FC4D9;
+}

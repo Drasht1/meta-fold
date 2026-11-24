@@ -7,6 +7,10 @@ import warnings
 import re
 from difflib import get_close_matches, SequenceMatcher
 from typing import Callable, Optional, List, Tuple
+from urllib.parse import parse_qs, quote_plus, urlparse
+from literature.search_engine import search_literature
+from literature.search_modes import SearchMode
+from literature.pubchem_xrefs import throttle_pubchem_request
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -100,6 +104,7 @@ def clean_name(name):
     name = str(name)
     name = name.split(';')[0]
     name = re.sub(r'\[[A-Za-z]+[^\]]*\]', '', name)
+    name = re.sub(r'\(?\s*non-preferred name\s*\)?', '', name, flags=re.IGNORECASE)
     name = name.replace('_', ',')
     name = re.sub(r'(?<!\s)(acid)\b', r' \1', name, flags=re.IGNORECASE)
     name = re.sub(r'\s+', ' ', name)
@@ -110,6 +115,7 @@ def clean_name(name):
 def fetch_description(cid):
     try:
         url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON/"
+        throttle_pubchem_request()
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             data = response.json()
@@ -260,7 +266,7 @@ def get_alternative_synonyms(compound_name, compound_formula):
     
     return []
 
-def extract_compound_data(compound):
+def extract_compound_data(compound, original_name=None):
     """Extract relevant data from PubChem Compound object."""
     synonyms = []
     try:
@@ -270,6 +276,41 @@ def extract_compound_data(compound):
     
     # Get description using the fetch_description function
     description = fetch_description(compound.cid)
+    search_name = original_name or compound.iupac_name or ""
+
+    literature = search_literature(
+        compound_name=search_name,
+        iupac_name=compound.iupac_name or "",
+        synonyms=synonyms,
+        mode=SearchMode.COMPREHENSIVE,
+        metadata_limit=5,
+        cid=compound.cid,
+    )
+
+    papers = literature.get("papers", [])
+
+    literature_links_value = ";".join(
+        f"{paper['title']} | {paper['url']}"
+        for paper in papers
+    )
+
+    literature_count = literature.get("paper_count", 0)
+
+    compound_context = {
+        "name": search_name,
+        "formula": compound.molecular_formula,
+        "molecular_weight": compound.molecular_weight,
+        "cid": compound.cid,
+        "iupac_name": compound.iupac_name,
+        "description": description,
+        "paper_count": literature_count,
+        "literature": papers
+    }
+
+    literature_search_url = (
+        f"https://pubmed.ncbi.nlm.nih.gov/?term="
+        f"{compound.iupac_name or compound.cid}"
+    )
     
     return {
         'Formula': compound.molecular_formula,
@@ -281,7 +322,12 @@ def extract_compound_data(compound):
         'InChIKey': compound.inchikey,
         'Synonyms': synonyms,
         'Source': 'PubChem',
-        'Structure': f'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{compound.cid}/PNG'
+        'Structure': f'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{compound.cid}/PNG',
+        'Literature Links': literature_links_value,
+        'Paper Count': literature_count,
+        'Displayed Papers': literature.get("displayed_papers", 0),
+        'Search Mode': literature.get("mode", "balanced"),
+        'Literature Search URL': literature_search_url,
     }
 
 def fetch_compound_info(compound_name, compound_formula, cache=None):
@@ -312,12 +358,12 @@ def fetch_compound_info(compound_name, compound_formula, cache=None):
                 if USE_FUZZY_MATCHING and len(compounds) > 1:
                     best_compound = fuzzy_match_compounds(compound_name, compounds, FUZZY_MATCH_THRESHOLD)
                     if best_compound:
-                        result = (extract_compound_data(best_compound), variation)
+                        result = (extract_compound_data(best_compound, compound_name), variation)
                         cache[cache_key] = result  # cache the result
                         return result
                 
                 # Fall back to first result if fuzzy match fails
-                result = (extract_compound_data(compounds[0]), variation)
+                result = (extract_compound_data(compounds[0], compound_name), variation)
                 cache[cache_key] = result  # cache the result
                 return result
             time.sleep(PUBCHEM_DELAY)
@@ -373,9 +419,22 @@ def process_excel_file(input_file, output_file, job_id=None, status_callback=Non
 
     # Initialize new columns if they don't exist
     new_columns = [
-        'PubChem CID', 'Synonyms', 'Isomeric SMILES', 
-        'Description', 'Structure', 'Source', 'InChIKey', 'Formula', 
-        'Calc. MW', 'IUPAC Name'
+        'PubChem CID', 
+        'Synonyms', 
+        'Isomeric SMILES', 
+        'Description', 
+        'Structure', 
+        'Source', 
+        'InChIKey', 
+        'Formula', 
+        'Calc. MW', 
+        'IUPAC Name', 
+        'Literature Links', 
+        'Paper Count', 
+        'Displayed Papers', 
+        'Search Mode',
+        'AI Scientific Insights' 
+
     ]
     for col in new_columns:
         if col not in df.columns:

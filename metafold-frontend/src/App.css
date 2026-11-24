@@ -40,3 +40,92 @@
 .read-the-docs {
   color: #888;
 }
+
+:root {
+  --background: #E4E9F2;
+  --surface: #FFFFFF;
+  --primary: #33518F;
+  --dark-primary: #223A66;
+  --mint: #4A6FA5;
+  --dark-mint: #33518F;
+  --lavender: #D98A73;
+  --dark-lavender: #A84936;
+  --peach: #D98A73;
+  --text: #17233D;
+  --secondary-text: #5C6B82;
+  --border: #C9D3E2;
+}
+
+/* General page defaults (fallbacks) */
+html, body {
+  background: var(--background);
+  color: var(--text);
+  font-family: Inter, sans-serif;
+}
+
+/* Navigation when scrolled */
+.nav-scrolled {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Hero gradient used as fallback / utility */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--surface), var(--peach), var(--background));
+}
+
+/* Themed button */
+.btn-theme {
+  border: 2px solid var(--dark-primary);
+  color: var(--text);
+  background: transparent;
+  border-radius: 9999px;
+  padding: 0.75rem 2rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-theme:hover {
+  color: var(--text);
+}
+.btn-theme::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--mint), var(--dark-mint));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  border-radius: 9999px;
+}
+.btn-theme:hover::before { opacity: 0.08; }
+
+/* Feature cards */
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  transition: transform 0.25s ease, border-color 0.2s ease;
+}
+.feature-card:hover { transform: translateY(-4px); border-color: var(--dark-mint); }
+.feature-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Accent gradient text utility */
+.accent-gradient {
+  background: linear-gradient(90deg, var(--dark-primary), var(--dark-lavender));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); }
